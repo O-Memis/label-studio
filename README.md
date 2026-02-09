@@ -1,64 +1,65 @@
-# Label Studio — Object Detection (Bounding Boxes) Fork
+# Label Studio Fork
 
-This repository is a fork of the original Label Studio project (upstream: https://github.com/HumanSignal/label-studio).
+This repository is a fork of the original Label Studio project (upstream: https://github.com/HumanSignal/label-studio). <br> <br>
 
-In this fork, the **primary focus is object detection with bounding boxes**. The main goal is to make it easy for contributors and users of this fork to find the relevant labeling configuration, UI implementation details, and quick-start steps.
+In this fork, the **primary focus is make computer vision annotations easier**. The main goal is to make it easy for contributors and users of this fork to find the relevant labeling configuration, UI implementation details, and quick-start steps. <br><br>
 
-- Object detection guide: [copilot-codes/OBJECT-DETECTION.md](copilot-codes/OBJECT-DETECTION.md)
-- Getting started (this fork): [copilot-codes/STARTING.md](copilot-codes/STARTING.md)
 
-## What’s different from upstream
+# Box Annotation (Object Detection): Keyboard-Assisted Editing
 
-- The repository documentation is oriented around **bounding-box labeling** and the **`<RectangleLabels>`** workflow.
-- The root README is intentionally minimal and points to the fork-specific docs above.
+This note documents the custom functionality added in this repo to make **bounding-box editing** easier when mouse control isn’t sensitive/precise enough. <br><br>
 
----
+Scope: this is specifically about **rectangle regions** created via `<RectangleLabels>` (object detection with bounding boxes). <br>
 
-# Object Detection (Bounding Boxes) in this repo
+## What changed (UX)
 
-## The labeling config you want
+In the image labeling UI’s **right-side toolbar**, under the existing **Move** tool, there are now two additional assist tools: <br><br>
 
-Object detection with bounding boxes uses the **`<RectangleLabels>`** control tag.
+- **Resize assist** — uses arrow keys to change the selected box’s width/height. <br>
+- **Rotate assist** — uses arrow keys to rotate the selected box. <br>
 
-You can use the built-in template config:
+These assist modes are intentionally **tool-driven**: <br>
 
-- Template definition (gallery entry + config):
-  - `label_studio/annotation_templates/computer-vision/object-detection-with-bounding-boxes/config.yml`
-- Minimal example config:
-  - `label_studio/core/examples/image_bbox/config.xml`
+- Arrow keys only apply when one of these tools is selected. <br>
+- Switching back to drawing boxes (e.g., selecting labels in the bottom label area / rectangle drawing modes) disables the assist behavior because a different tool is active. <br><br>
 
-The minimal config looks like:
+## How it works (behavior)
 
-```xml
-<View>
-  <Image name="image" value="$image"/>
-  <RectangleLabels name="label" toName="image">
-    <Label value="Airplane" background="green"/>
-    <Label value="Car" background="blue"/>
-  </RectangleLabels>
-</View>
-```
+All three modes operate only when: <br>
 
-## Where `RectangleLabels` is implemented
+- Exactly **one** region is selected <br>
+- Focus is **not** inside a text input/textarea/contenteditable <br><br>
 
-- Frontend tag implementation:
-  - `web/libs/editor/src/tags/control/RectangleLabels.jsx`
+### 1) Move assist (Move tool)
 
-That file registers the tag name `rectanglelabels` into the editor registry so the UI knows how to render and serialize bounding boxes.
+When the **Move** tool is selected: <br>
 
-## How to use it in the UI (quick checklist)
+- Arrow keys **nudge** the selected box by **1px** per key press. <br><br>
 
-1) Start Label Studio (see `STARTING.md`).
-2) Create a new project.
-3) Choose the template: **“Object Detection with Bounding Boxes”** (or paste your own config with `<RectangleLabels>`).
-4) Import tasks that contain an `image` field (URL or uploaded image).
-5) Draw rectangles and assign labels.
+### 2) Resize assist
 
-## Results / export (high level)
+When **Resize assist** is selected: <br>
 
-- A bounding box region becomes a result item with `type: "rectanglelabels"`.
-- For training, you typically export into formats like COCO or YOLO (the repo test suite references these formats, and Label Studio generally supports them via export).
+- Left/Right: width **-1px / +1px** <br>
+- Up/Down: height **+1px / -1px** <br>
+- Width/height are clamped to a minimum of **1px**. <br><br>
 
-If you want to see examples of import/export for bounding boxes, look at:
-- `label_studio/tests/data_import.tavern.yml` (pre-annotated bbox examples)
-- `label_studio/tests/export.tavern.yml` (export formats tagged with object detection)
+### 3) Rotate assist
+
+When **Rotate assist** is selected: <br>
+
+- Left/Right: rotate by **-1° / +1°** <br>
+- Up/Down: no-op <br><br>
+
+## Where the code lives
+
+Key implementation files: <br>
+
+- `web/libs/editor/src/tools/Selection.js` <br>
+  - Adds arrow-key nudging when the Move tool is selected.
+- `web/libs/editor/src/tools/ArrowResize.js`<br>
+  - Implements the resize-assist tool.
+- `web/libs/editor/src/tools/ArrowRotate.js`<br>
+  - Implements the rotate-assist tool.
+- `web/libs/editor/src/tags/object/Image/Image.js`<br>
+  - Registers these tools into the Image tool manager so they appear in the right toolbar.
