@@ -8,6 +8,18 @@ import ToolMixin from "../mixins/Tool";
 import { FF_LSDV_4930, isFF } from "../utils/feature-flags";
 import BaseTool from "./Base";
 
+const isTextEditingTarget = (target) => {
+  if (!target) return false;
+  const tag = target.tagName?.toLowerCase();
+  return tag === "input" || tag === "textarea" || target.isContentEditable;
+};
+
+const getSingleSelectedRegion = (annotation) => {
+  const selectedRegions = annotation?.selectedRegions ?? [];
+  if (selectedRegions.length !== 1) return null;
+  return selectedRegions[0];
+};
+
 const ToolView = observer(({ item }) => {
   return (
     <Tool
@@ -42,7 +54,60 @@ const _Tool = types
   .actions((self) => {
     let isSelecting = false;
 
+    const STEP_PX = 1;
+
+    const keydownEv = (e) => {
+      if (!self.selected) return;
+      if (isTextEditingTarget(e.target)) return;
+      if (self.annotation?.isDrawing) return;
+
+      if (!e.key || !e.key.startsWith("Arrow")) return;
+
+      const region = getSingleSelectedRegion(self.annotation);
+      if (!region?.setPosition) return;
+
+      let dx = 0;
+      let dy = 0;
+
+      switch (e.key) {
+        case "ArrowLeft":
+          dx = -STEP_PX;
+          break;
+        case "ArrowRight":
+          dx = STEP_PX;
+          break;
+        case "ArrowUp":
+          dy = -STEP_PX;
+          break;
+        case "ArrowDown":
+          dy = STEP_PX;
+          break;
+      }
+
+      if (dx === 0 && dy === 0) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      region.setPosition(
+        (region.canvasX ?? 0) + dx,
+        (region.canvasY ?? 0) + dy,
+        region.canvasWidth ?? 0,
+        region.canvasHeight ?? 0,
+        region.rotation ?? 0,
+      );
+      region.notifyDrawingFinished?.();
+    };
+
     return {
+      afterUpdateSelected() {
+        if (self.selected) {
+          window.addEventListener("keydown", keydownEv, true);
+        } else {
+          window.removeEventListener("keydown", keydownEv, true);
+        }
+      },
+
       /**
        * Indicates that move tool always interacts with regions
        */

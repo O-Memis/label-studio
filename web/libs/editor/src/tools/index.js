@@ -16,6 +16,8 @@ import { Brightness } from "./Brightness";
 import { Contrast } from "./Contrast";
 import { MagicWand } from "./MagicWand";
 import { Selection } from "./Selection";
+import { ArrowResize } from "./ArrowResize";
+import { ArrowRotate } from "./ArrowRotate";
 
 export {
   Brush,
@@ -34,4 +36,6 @@ export {
   Zoom,
   MagicWand,
   Selection,
+  ArrowResize,
+  ArrowRotate,
 };

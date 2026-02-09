@@ -5,6 +5,14 @@ import os
 import sys
 
 if __name__ == '__main__':
+    # Ensure we prefer local sources over any site-packages installation.
+    # This avoids mixed imports like `core.*` from the repo and `label_studio.*`
+    # from site-packages when running this script from the checkout.
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(current_dir)
+    if repo_root not in sys.path:
+        sys.path.insert(0, repo_root)
+
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.label_studio')
     # os.environ.setdefault('DEBUG', 'True')
     try:

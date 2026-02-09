@@ -622,7 +622,11 @@ const Model = types
       if (ff.isActive(FF_DEV_3391) && !self.annotation) {
         return;
       }
-      if (self.selectioncontrol) manager.addTool("MoveTool", Tools.Selection.create({}, env), "MoveTool");
+      if (self.selectioncontrol) {
+        manager.addTool("MoveTool", Tools.Selection.create({}, env), "MoveTool");
+        manager.addTool("ArrowResizeTool", Tools.ArrowResize.create({}, env), "ArrowResizeTool");
+        manager.addTool("ArrowRotateTool", Tools.ArrowRotate.create({}, env), "ArrowRotateTool");
+      }
 
       if (self.zoomcontrol) manager.addTool("ZoomPanTool", Tools.Zoom.create({}, env), "ZoomPanTool");
 
