@@ -1,0 +1,49 @@
+How to start Label Studio via PowerShell (daily usage)
+
+Assumes:
+- You already created a venv in this folder using Python 3.11:
+  py -3.11 -m venv .venv
+- You’re running commands from: C:\label-studio
+
+1) Open PowerShell
+
+2) Go to the project folder
+   cd C:\label-studio
+
+3) Activate the virtual environment
+   .\.venv\Scripts\Activate.ps1
+
+   If activation is blocked (one-time fix):
+   Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+
+4) Start Label Studio (auto-opens your browser)
+   label-studio
+
+Common variants
+
+- Pick a port:
+  label-studio start --port 9090
+
+- Store Label Studio data (DB/uploads) in a local folder:
+  label-studio start --data-dir .\mydata
+
+- Don’t auto-open the browser:
+  label-studio start --no-browser
+
+Stopping
+
+- In the PowerShell window running Label Studio, press Ctrl+C
+
+Leaving the venv
+
+- deactivate
+
+Troubleshooting (quick)
+
+- If you see paths like C:\Python314\... in errors, recreate the venv using Python 3.11:
+  deactivate
+  Remove-Item -Recurse -Force .venv
+  py -3.11 -m venv .venv
+  .\.venv\Scripts\Activate.ps1
+  python -m pip install -U pip
+  python -m pip install label-studio
