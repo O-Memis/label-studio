@@ -41,10 +41,28 @@ Core backend areas (organized as Django apps):
 - `web/apps/labelstudio/` — main Label Studio web app shell
 - `web/libs/editor/` — Label Studio Frontend (annotation editor)
   - `web/libs/editor/src/tags/control/RectangleLabels.jsx` — bounding box tag implementation
+- Keyboard-assisted box editing (object detection)
+  - `web/libs/editor/src/tools/Selection.js` — Move tool; arrow keys nudge selected box
+  - `web/libs/editor/src/tools/ArrowResize.js` — Resize-assist tool; arrow keys adjust width/height
+  - `web/libs/editor/src/tools/ArrowRotate.js` — Rotate-assist tool; arrow keys rotate by degrees
+  - `web/libs/editor/src/tools/index.js` — tool exports/registry
+  - `web/libs/editor/src/tags/object/Image/Image.js` — wires the tools into the Image tool manager (right toolbar)
 - `web/libs/datamanager/` — data exploration / task browsing UI
+
+Frontend build outputs (what the running app actually serves):
+- `web/dist/apps/labelstudio/` — production bundle built from `web/` sources
+
+Static serving notes (why you might “see no changes” after editing frontend sources):
+- If you run the pip-installed CLI (`label-studio`), it can serve frontend assets from the installed package.
+- If you run from the repo checkout, `label_studio/manage.py collectstatic` builds backend static assets into:
+  - `label_studio/core/static_build/`
 
 ## Tests that are useful for object detection
 
 - `label_studio/tests/data_import.tavern.yml` — includes bbox import examples (`preannotated_from_fields=bbox`)
 - `label_studio/tests/create_project_and_import_data.tavern.yml` — creates projects with `RectangleLabels`
 - `label_studio/tests/export.tavern.yml` — export formats including object detection
+
+## Local workflow notes (PowerShell)
+
+- `copilot-codes/HOW-TO-START-IN-POWERSHELL.txt` — the daily driver workflow used in this repo on Windows

@@ -6,6 +6,7 @@ This folder is a **curated map** of the most important code paths and “how to 
 
 - If you just want to **run Label Studio**: see [STARTING.md](STARTING.md).
 - If you want to do **object detection**: see [OBJECT-DETECTION.md](OBJECT-DETECTION.md).
+- If you want the **keyboard-assisted bbox editing** notes: see [README-BOX-ANNOTATION.md](README-BOX-ANNOTATION.md).
 - If you want a “what file does what” map: see [FILE-MAP.md](FILE-MAP.md).
 
 ## Key mental model
