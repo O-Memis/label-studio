@@ -50,6 +50,8 @@ def check_max_task_number(tasks):
 
 
 def check_tasks_max_file_size(value):
+    if settings.TASKS_MAX_FILE_SIZE is None:
+        return
     if value >= settings.TASKS_MAX_FILE_SIZE:
         raise ValidationError(
             f'Maximum total size of all files is {settings.TASKS_MAX_FILE_SIZE} bytes, '

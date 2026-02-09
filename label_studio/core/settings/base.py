@@ -19,6 +19,23 @@ from django.core.exceptions import ImproperlyConfigured
 
 from label_studio.core.utils.params import get_bool_env, get_env, get_env_list, has_env
 
+
+def _optional_int_env(name, default=None):
+    """Read an int setting from env with support for disabling limits.
+
+    For select Django limit settings, using any of: '', '0', 'none', 'null', 'unlimited'
+    will return None (i.e. disable the limit).
+    """
+
+    value = get_env(name, default=None)
+    if value is None:
+        return default
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in ('', '0', 'none', 'null', 'unlimited'):
+            return None
+    return int(value)
+
 formatter = 'standard'
 JSON_LOG = get_bool_env('JSON_LOG', False)
 if JSON_LOG:
@@ -539,8 +556,11 @@ DELAYED_EXPORT_DIR = 'export'
 os.makedirs(os.path.join(BASE_DATA_DIR, MEDIA_ROOT, DELAYED_EXPORT_DIR), exist_ok=True)
 
 # file / task size limits
-DATA_UPLOAD_MAX_MEMORY_SIZE = int(get_env('DATA_UPLOAD_MAX_MEMORY_SIZE', 250 * 1024 * 1024))
-DATA_UPLOAD_MAX_NUMBER_FILES = int(get_env('DATA_UPLOAD_MAX_NUMBER_FILES', 100))
+# NOTE: By default we disable strict upload limits to support bulk image/data imports.
+# Set env vars to re-enable caps (e.g. LABEL_STUDIO_DATA_UPLOAD_MAX_MEMORY_SIZE=262144000).
+DATA_UPLOAD_MAX_MEMORY_SIZE = _optional_int_env('DATA_UPLOAD_MAX_MEMORY_SIZE', None)
+DATA_UPLOAD_MAX_NUMBER_FILES = _optional_int_env('DATA_UPLOAD_MAX_NUMBER_FILES', None)
+DATA_UPLOAD_MAX_NUMBER_FIELDS = _optional_int_env('DATA_UPLOAD_MAX_NUMBER_FIELDS', None)
 TASKS_MAX_NUMBER = 1000000
 TASKS_MAX_FILE_SIZE = DATA_UPLOAD_MAX_MEMORY_SIZE
 

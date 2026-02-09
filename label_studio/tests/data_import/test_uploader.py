@@ -127,7 +127,11 @@ class TestUploader:
 
 
 class TestTasksFileChecks:
-    @pytest.mark.parametrize('value', (0, settings.TASKS_MAX_FILE_SIZE - 1))
+    @pytest.fixture(autouse=True)
+    def _set_max_file_size_limit(self, settings):
+        settings.TASKS_MAX_FILE_SIZE = 250 * 1024 * 1024
+
+    @pytest.mark.parametrize('value', (0, 250 * 1024 * 1024 - 1))
     def test_check_tasks_max_file_size_does_not_raise_for_correct_value(self, value):
         check_tasks_max_file_size(value)
 
@@ -141,6 +145,10 @@ class TestTasksFileChecks:
 
 
 class TestTasksFromUrl:
+    @pytest.fixture(autouse=True)
+    def _set_max_file_size_limit(self, settings):
+        settings.TASKS_MAX_FILE_SIZE = 250 * 1024 * 1024
+
     @pytest.fixture
     def organization(self):
         return OrganizationFactory()
