@@ -26,8 +26,26 @@ def upload_name_generator(instance, filename):
     project = str(instance.project_id)
     project_dir = os.path.join(settings.MEDIA_ROOT, settings.UPLOAD_DIR, project)
     os.makedirs(project_dir, exist_ok=True)
-    path = settings.UPLOAD_DIR + '/' + project + '/' + str(uuid.uuid4())[0:8] + '-' + filename
-    return path
+
+    # Always store a safe basename to prevent path traversal
+    safe_filename = os.path.basename(filename)
+
+    # Default behavior: prefix with a short UUID to avoid collisions
+    if not getattr(settings, 'PRESERVE_UPLOAD_FILENAMES', False):
+        return settings.UPLOAD_DIR + '/' + project + '/' + str(uuid.uuid4())[0:8] + '-' + safe_filename
+
+    # Preserve original basenames for stable name-based sorting.
+    # If a collision happens, use a subfolder instead of prefixing the filename.
+    field = instance._meta.get_field('file')
+    storage = field.storage
+    base_path = settings.UPLOAD_DIR + '/' + project + '/' + safe_filename
+    if not storage.exists(base_path):
+        return base_path
+
+    subdir = str(uuid.uuid4())[0:8]
+    # Create the subdir for local file storage; cloud storages will ignore this.
+    os.makedirs(os.path.join(project_dir, subdir), exist_ok=True)
+    return settings.UPLOAD_DIR + '/' + project + '/' + subdir + '/' + safe_filename
 
 
 class FileUpload(models.Model):

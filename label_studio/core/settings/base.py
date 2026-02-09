@@ -514,6 +514,11 @@ MEDIA_URL = '/data/'
 UPLOAD_DIR = 'upload'
 AVATAR_PATH = 'avatars'
 
+# Upload file naming
+# By default Label Studio prefixes uploaded files with a short UUID to avoid name collisions.
+# Set PRESERVE_UPLOAD_FILENAMES=true to keep original basenames (collisions go into a subfolder).
+PRESERVE_UPLOAD_FILENAMES = get_bool_env('PRESERVE_UPLOAD_FILENAMES', default=False)
+
 SUPPORTED_EXTENSIONS = set(
     [
         '.bmp',

@@ -19,6 +19,17 @@ Assumes:
 4) Start Label Studio (auto-opens your browser)
    label-studio
 
+Filename sorting (keep original upload names)
+
+- By default, Label Studio prefixes uploaded files with a short UUID (to avoid name collisions).
+- To preserve the original filenames (recommended if you sort by name):
+  $env:LABEL_STUDIO_PRESERVE_UPLOAD_FILENAMES = "true"
+
+  Then start Label Studio as usual:
+  label-studio
+
+  Note: this affects new uploads only. Existing tasks keep their current stored paths.
+
 Common variants
 
 - Pick a port:
